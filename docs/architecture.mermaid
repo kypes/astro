@@ -1,0 +1,37 @@
+%%{init: {'theme': 'default'}}%%
+flowchart TD
+    subgraph Client
+      A1[Admin User Browser]
+      A2[Poster User Browser]
+    end
+
+    subgraph Hosting
+      B[Cloudflare Pages]
+    end
+
+    subgraph API
+      C[Cloudflare Workers<br/>(Auth & API Functions)]
+    end
+
+    subgraph Database
+      D[Cloudflare D1 Database]
+    end
+
+    subgraph External
+      E[Discord Webhook]
+    end
+
+    A1 -->|HTTP Request/SPA Load| B
+    A2 -->|HTTP Request/SPA Load| B
+    B -->|Serves SPA (Astro/React, TailwindCSS, DaisyUI, Lucide Icons)| A1
+    B -->|Serves SPA (Astro/React, TailwindCSS, DaisyUI, Lucide Icons)| A2
+
+    A1 -->|API Calls (Auth, Admin Tasks, Release Submission)| C
+    A2 -->|API Calls (Auth, Release Submission)| C
+
+    C -->|CRUD Operations (Releases, Logs)| D
+    C -->|Sends Release Data| E
+
+    classDef hosting fill:#f0f9ff,stroke:#007acc,stroke-width:2px;
+    classDef api fill:#f9f0ff,stroke:#a64ac9,stroke-width:2px;
+    classDef database fill:#f9fff0,stroke:#7fbf7f,stroke-width:2px;
