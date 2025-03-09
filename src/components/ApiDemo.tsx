@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Server, Send, RefreshCw } from "lucide-react";
 
 /**
- * API Demo component to demonstrate Cloudflare Workers connectivity
- * Shows API response data and allows making POST requests
+ * API Demo component to demonstrate API connectivity
+ * Works with static and dynamic APIs
  */
 const ApiDemo: React.FC = () => {
   const [apiData, setApiData] = useState<any>(null);
@@ -33,6 +33,8 @@ const ApiDemo: React.FC = () => {
     setError(null);
 
     try {
+      // In static mode, this will load the pre-rendered response
+      // In production with Cloudflare Workers, this would be a real API call
       const response = await fetch("/api/hello", {
         method: "POST",
         headers: {

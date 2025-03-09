@@ -1,18 +1,18 @@
 import type { APIRoute } from "astro";
 
-/**
- * Simple API endpoint using Cloudflare Workers
- * Returns a greeting message with timestamp
- */
-export const GET: APIRoute = async ({ request }) => {
-  // Get client IP address from Cloudflare headers
-  const clientIP = request.headers.get("CF-Connecting-IP") || "unknown";
+// Make this a static JSON endpoint
+export const prerender = true;
 
+/**
+ * Simple API endpoint that returns static data
+ * For a real API, you would use Cloudflare Workers or Functions
+ */
+export const GET: APIRoute = async () => {
   return new Response(
     JSON.stringify({
-      message: "Hello from Cloudflare Workers!",
+      message: "Hello from a static API endpoint!",
       timestamp: new Date().toISOString(),
-      clientIP: clientIP,
+      note: "In production, dynamic API endpoints would use Cloudflare Workers",
     }),
     {
       status: 200,
@@ -25,26 +25,13 @@ export const GET: APIRoute = async ({ request }) => {
 
 /**
  * POST handler for the same endpoint
- * Accepts JSON data and returns it with a timestamp
+ * Note: This is prerendered, so it only provides documentation on how to use real APIs
  */
-export const POST: APIRoute = async ({ request }) => {
-  let body;
-
-  try {
-    body = await request.json();
-  } catch (error) {
-    return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
-      status: 400,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  }
-
+export const POST: APIRoute = async () => {
   return new Response(
     JSON.stringify({
-      message: "Data received successfully",
-      data: body,
+      message: "This is a static POST response",
+      note: "In a real application, POST requests would be handled by Cloudflare Workers",
       timestamp: new Date().toISOString(),
     }),
     {
