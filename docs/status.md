@@ -13,6 +13,7 @@
 - Added protected route component for secure pages
 - Fixed Cloudflare Pages Functions for authentication
 - Configured proper routes for OpenAuth.js
+- Fixed OpenAuth.js import issues (changed from default to named imports)
 
 ## In Progress
 

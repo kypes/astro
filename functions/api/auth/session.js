@@ -1,4 +1,4 @@
-import OpenAuth from "@openauthjs/openauth";
+import { issuer } from "@openauthjs/openauth";
 
 /**
  * API endpoint to get current user session data
@@ -14,7 +14,7 @@ export async function onRequest(context) {
   console.log("Session API called:", new URL(request.url).pathname);
 
   // Initialize OpenAuth.js with the same configuration
-  const openauth = new OpenAuth({
+  const openauth = issuer({
     secret: env.AUTH_SECRET || "your-secret-key-change-in-production",
     baseUrl: env.AUTH_URL || "https://astro2-5ew.pages.dev",
     providers: [

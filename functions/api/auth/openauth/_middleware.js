@@ -1,4 +1,4 @@
-import OpenAuth from "@openauthjs/openauth";
+import { issuer } from "@openauthjs/openauth";
 
 /**
  * OpenAuth.js Discord authentication handler for Cloudflare Pages Functions
@@ -10,7 +10,7 @@ export async function onRequest(context) {
   console.log("Auth middleware called, path:", new URL(request.url).pathname);
 
   // Initialize the OpenAuth.js instance
-  const openauth = new OpenAuth({
+  const openauth = issuer({
     // Secret used to encrypt cookies and tokens
     secret: env.AUTH_SECRET || "your-secret-key-change-in-production",
 
