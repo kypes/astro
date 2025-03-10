@@ -11,6 +11,24 @@ export async function onRequest(context) {
 
   console.log("Auth middleware called, path:", new URL(request.url).pathname);
 
+  // Set CORS headers for all responses
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers":
+      "Content-Type, Authorization, X-Requested-With",
+    "Access-Control-Max-Age": "86400",
+  };
+
+  // Handle preflight OPTIONS request
+  if (request.method === "OPTIONS") {
+    console.log("Handling OPTIONS preflight request");
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
+  }
+
   // Define subjects (user data shape)
   const subjects = createSubjects({
     user: {
@@ -122,13 +140,26 @@ export async function onRequest(context) {
 
   // Let OpenAuth.js handle the request
   try {
-    return await openauth.handleRequest(request);
+    const response = await openauth.handleRequest(request);
+
+    // Add CORS headers to the response
+    const newHeaders = new Headers(response.headers);
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      newHeaders.set(key, value);
+    });
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: newHeaders,
+    });
   } catch (error) {
     console.error("Auth handler error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: {
         "Content-Type": "application/json",
+        ...corsHeaders,
       },
     });
   }

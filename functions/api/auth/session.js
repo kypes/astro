@@ -15,6 +15,24 @@ export async function onRequest(context) {
 
   console.log("Session API called:", new URL(request.url).pathname);
 
+  // Set CORS headers for all responses
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Headers":
+      "Content-Type, Authorization, X-Requested-With",
+    "Access-Control-Max-Age": "86400",
+  };
+
+  // Handle preflight OPTIONS request
+  if (request.method === "OPTIONS") {
+    console.log("Handling OPTIONS preflight request");
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
+  }
+
   // Define subjects (user data shape) - must match the one in _middleware.js
   const subjects = createSubjects({
     user: {
@@ -28,31 +46,31 @@ export async function onRequest(context) {
     },
   });
 
-  // Initialize OpenAuth.js with the same configuration
-  const openauth = issuer({
-    secret: env.AUTH_SECRET || "your-secret-key-change-in-production",
-    baseUrl: env.AUTH_URL || "https://astro2-5ew.pages.dev",
-
-    // Storage adapter (using memory for now, will implement D1 later)
-    storage: MemoryStorage(),
-
-    // Subjects definition
-    subjects,
-
-    // Configure providers as an object, not an array
-    providers: {
-      discord: {
-        id: "discord",
-        name: "Discord",
-        type: "oauth",
-        clientId: env.DISCORD_CLIENT_ID || "",
-        clientSecret: env.DISCORD_CLIENT_SECRET || "",
-      },
-    },
-    debug: true,
-  });
-
   try {
+    // Initialize OpenAuth.js with the same configuration
+    const openauth = issuer({
+      secret: env.AUTH_SECRET || "your-secret-key-change-in-production",
+      baseUrl: env.AUTH_URL || "https://astro2-5ew.pages.dev",
+
+      // Storage adapter (using memory for now, will implement D1 later)
+      storage: MemoryStorage(),
+
+      // Subjects definition
+      subjects,
+
+      // Configure providers as an object, not an array
+      providers: {
+        discord: {
+          id: "discord",
+          name: "Discord",
+          type: "oauth",
+          clientId: env.DISCORD_CLIENT_ID || "",
+          clientSecret: env.DISCORD_CLIENT_SECRET || "",
+        },
+      },
+      debug: true,
+    });
+
     // Get the current session
     console.log("Trying to get session...");
     const session = await openauth.getSession(request);
@@ -68,10 +86,7 @@ export async function onRequest(context) {
       {
         headers: {
           "Content-Type": "application/json",
-          // Allow CORS for development
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+          ...corsHeaders,
         },
       }
     );
@@ -88,7 +103,7 @@ export async function onRequest(context) {
         status: 500,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
+          ...corsHeaders,
         },
       }
     );
