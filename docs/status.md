@@ -11,6 +11,8 @@
 - Implemented Discord authentication with OpenAuth.js
 - Created login form with Discord integration
 - Added protected route component for secure pages
+- Fixed Cloudflare Pages Functions for authentication
+- Configured proper routes for OpenAuth.js
 
 ## In Progress
 

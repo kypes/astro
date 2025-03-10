@@ -1,5 +1,4 @@
 import OpenAuth from "@openauthjs/openauth";
-import { DiscordProvider } from "@openauthjs/openauth/providers";
 
 /**
  * API endpoint to get current user session data
@@ -19,11 +18,13 @@ export async function onRequest(context) {
     secret: env.AUTH_SECRET || "your-secret-key-change-in-production",
     baseUrl: env.AUTH_URL || "https://astro2-5ew.pages.dev",
     providers: [
-      DiscordProvider({
+      {
+        id: "discord",
+        name: "Discord",
+        type: "oauth",
         clientId: env.DISCORD_CLIENT_ID || "",
         clientSecret: env.DISCORD_CLIENT_SECRET || "",
-        scopes: ["identify", "email"],
-      }),
+      },
     ],
     debug: true,
   });

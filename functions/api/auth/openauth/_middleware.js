@@ -1,5 +1,4 @@
 import OpenAuth from "@openauthjs/openauth";
-import { DiscordProvider } from "@openauthjs/openauth/providers";
 
 /**
  * OpenAuth.js Discord authentication handler for Cloudflare Pages Functions
@@ -30,12 +29,51 @@ export async function onRequest(context) {
 
     // Configure providers
     providers: [
-      DiscordProvider({
+      {
+        id: "discord",
+        name: "Discord",
+        type: "oauth",
+
         clientId: env.DISCORD_CLIENT_ID || "",
         clientSecret: env.DISCORD_CLIENT_SECRET || "",
-        // Optional: Specific permissions to request
-        scopes: ["identify", "email"],
-      }),
+
+        authorization: {
+          url: "https://discord.com/api/oauth2/authorize",
+          params: {
+            scope: "identify email",
+            response_type: "code",
+          },
+        },
+        token: "https://discord.com/api/oauth2/token",
+        userinfo: {
+          url: "https://discord.com/api/users/@me",
+          async request(context) {
+            if (!context?.tokens?.access_token) return null;
+
+            const res = await fetch("https://discord.com/api/users/@me", {
+              headers: {
+                Authorization: `Bearer ${context.tokens.access_token}`,
+              },
+            });
+
+            if (!res.ok) {
+              console.error("Error getting Discord user info");
+              return null;
+            }
+
+            const user = await res.json();
+
+            return {
+              id: user.id,
+              name: user.username,
+              email: user.email,
+              image: user.avatar
+                ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
+                : null,
+            };
+          },
+        },
+      },
     ],
 
     // Debug mode (disable in production)
