@@ -8,15 +8,11 @@
 - Integrated Lucide icons
 - Created responsive layout with theme toggle
 - Set up Cloudflare Pages configuration
-- Implemented Discord authentication with OpenAuth.js
+- Replaced OpenAuth.js with Auth Astro for authentication
 - Created login form with Discord integration
 - Added protected route component for secure pages
-- Fixed Cloudflare Pages Functions for authentication
-- Configured proper routes for OpenAuth.js
-- Fixed OpenAuth.js import issues (changed from default to named imports)
-- Fixed OpenAuth.js configuration (added subjects, storage and success callback)
-- Added proper CORS headers to authentication endpoints
-- Fixed AUTH_SECRET environment variable
+- Configured Auth Astro integration
+- Updated project for server-side rendering (SSR) with Cloudflare adapter
 
 ## In Progress
 
@@ -31,5 +27,5 @@
 
 ## Known Issues
 
-- Authentication currently uses in-memory storage; needs D1 database integration to persist users
+- Authentication requires proper environment variables in production
 - Need to configure Discord OAuth credentials in production environment

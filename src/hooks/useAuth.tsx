@@ -1,25 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-
-// Define the session type based on the OpenAuth.js structure
-interface Session {
-  user: {
-    id: string;
-    name?: string;
-    email?: string;
-    image?: string;
-  };
-  provider: string;
-  expires: string;
-}
-
-// Define the response type for session API
-interface SessionResponse {
-  authenticated: boolean;
-  session: Session | null;
-  expires: string | null;
-  error?: string;
-}
+import type { Session } from "@auth/core/types";
 
 // Auth context state interface
 interface AuthContextType {
@@ -66,24 +47,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1";
 
-      if (isDev) {
-        // In development, simulate a successful response for testing UI
-        console.log(
-          "Running in development mode - simulating authentication API"
-        );
-
-        // Simulate loading delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        // Set unauthenticated state
-        setIsAuthenticated(false);
-        setUser(null);
-        setIsLoading(false);
-        return;
-      }
-
-      // In production, attempt to call the real API
-      console.log("Fetching session from server...");
+      // In production or development, attempt to call the Auth Astro API
+      console.log("Fetching session from Auth Astro...");
       const res = await fetch("/api/auth/session");
 
       // Check if response is OK
@@ -91,16 +56,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error(`API responded with status: ${res.status}`);
       }
 
-      const contentType = res.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("API response is not JSON");
-      }
+      const session = (await res.json()) as Session | null;
+      console.log("Session data:", session);
 
-      const data = (await res.json()) as SessionResponse;
-      console.log("Session data:", data);
-
-      setIsAuthenticated(data.authenticated);
-      setUser(data.session?.user || null);
+      setIsAuthenticated(!!session);
+      setUser(session?.user || null);
     } catch (err: any) {
       console.error("Auth error:", err);
       // Show more helpful error message in production
@@ -120,44 +80,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // Login function - redirects to Discord OAuth flow
-  const login = (provider = "discord") => {
-    // Check if we're in development
-    const isDev =
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-
-    if (isDev) {
-      // In development, show a message about Discord auth not working locally
-      alert(
-        "Discord authentication requires a deployed Cloudflare environment. In production, you would be redirected to Discord for authentication."
-      );
-      return;
+  const login = async (provider = "discord") => {
+    try {
+      const { signIn } = await import("auth-astro/client");
+      await signIn(provider);
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("Failed to initiate login");
     }
-
-    // In production, redirect to the auth endpoint
-    const callbackUrl = window.location.origin + "/api/auth/callback/discord";
-    console.log("Redirecting to auth with callback:", callbackUrl);
-    window.location.href = `/api/auth/signin/${provider}`;
   };
 
   // Logout function
   const logout = async () => {
     try {
-      // Check if we're in development
-      const isDev =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1";
-
-      if (isDev) {
-        // In development, just show a message
-        alert(
-          "Logout functionality requires a deployed Cloudflare environment."
-        );
-        return;
-      }
-
-      // In production, redirect to the logout endpoint
-      window.location.href = "/api/auth/signout";
+      const { signOut } = await import("auth-astro/client");
+      await signOut();
     } catch (err) {
       setError("Failed to log out");
       console.error(err);

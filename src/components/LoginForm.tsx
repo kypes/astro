@@ -21,8 +21,8 @@ const LoginFormContent: React.FC = () => {
   const { isAuthenticated, isLoading, user, error, login, logout } = useAuth();
 
   // Login with Discord
-  const handleDiscordLogin = () => {
-    login("discord");
+  const handleDiscordLogin = async () => {
+    await login("discord");
   };
 
   // If loading, show loading indicator
@@ -73,7 +73,7 @@ const LoginFormContent: React.FC = () => {
         </div>
 
         <button
-          onClick={logout}
+          onClick={() => logout()}
           className="btn btn-outline btn-error gap-2 mt-4"
         >
           <LogIn className="h-4 w-4" />
@@ -82,12 +82,6 @@ const LoginFormContent: React.FC = () => {
       </div>
     );
   }
-
-  // Check if we're in a local development environment
-  const isDev =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1");
 
   // If not authenticated, show Discord login button
   return (
@@ -102,14 +96,6 @@ const LoginFormContent: React.FC = () => {
       {error && (
         <div className="alert alert-info mb-6">
           <span>{error}</span>
-          {isDev && (
-            <div className="mt-2 text-xs">
-              <p>
-                <strong>Development Note:</strong> Authentication APIs require
-                Cloudflare Pages deployment.
-              </p>
-            </div>
-          )}
         </div>
       )}
 
@@ -127,19 +113,6 @@ const LoginFormContent: React.FC = () => {
             <DiscordLogo />
             Sign in with Discord
           </button>
-
-          {isDev && (
-            <div className="mt-4 text-xs text-base-content/70 bg-info/10 p-3 rounded-lg">
-              <p className="font-semibold">Development Environment Detected</p>
-              <p className="mt-1">
-                Discord authentication requires deployment to Cloudflare Pages.
-              </p>
-              <p className="mt-1">
-                In local development, clicking the button will show an alert
-                instead of redirecting to Discord.
-              </p>
-            </div>
-          )}
         </div>
 
         <div className="text-center text-sm text-base-content/70">

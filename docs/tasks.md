@@ -11,14 +11,14 @@
 - Implemented Cloudflare Pages configuration
 - Added basic API endpoint using Cloudflare Workers
 - Created API demo component
-- Implemented Discord authentication with OpenAuth.js
-- Set up Cloudflare Pages Functions for auth handling
+- Migrated to Auth Astro for authentication
+- Configured project for server-side rendering (SSR)
 - Created protected route component
 
 ## Current Tasks
 
 - Configure Cloudflare D1 database for user persistence
-- Integrate D1 database with authentication system
+- Integrate D1 database with Auth Astro
 - Finalize user roles (admin and poster)
 - Set up Discord webhook integration
 
