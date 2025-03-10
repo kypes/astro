@@ -2,4 +2,7 @@
 name = "astro2"
 compatibility_date = "2023-10-30"
 compatibility_flags = ["nodejs_compat"]
-workers_dev = true 
+workers_dev = true
+
+# Use our custom worker entry
+main = "./src/worker-entry.js" 

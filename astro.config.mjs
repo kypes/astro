@@ -16,4 +16,25 @@ export default defineConfig({
   ],
   output: "server", // Server output is required for Auth Astro
   adapter: cloudflare(), // Use Cloudflare adapter for deployment
+
+  // Add vite configuration to handle Node.js modules
+  vite: {
+    ssr: {
+      external: ["node:path"],
+      noExternal: ["auth-astro", "@auth/core"],
+    },
+    resolve: {
+      alias: {
+        "node:path": "path-browserify",
+      },
+    },
+    // Add our polyfill as a client entry
+    build: {
+      rollupOptions: {
+        input: {
+          polyfill: "./src/polyfills.js",
+        },
+      },
+    },
+  },
 });
