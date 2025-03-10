@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": ["/_astro/*", "/assets/*", "/favicon.ico", "/favicon.svg"],
+  "routes": [
+    {
+      "pattern": "/api/auth/session",
+      "function": "api/auth/session"
+    },
+    {
+      "pattern": "/api/auth/*",
+      "function": "api/auth/[...openauth]"
+    }
+  ]
+}

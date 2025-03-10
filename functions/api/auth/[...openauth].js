@@ -1,5 +1,5 @@
 import OpenAuth from "@openauthjs/openauth";
-import Discord from "@openauthjs/openauth/providers/discord";
+import { DiscordProvider } from "@openauthjs/openauth/providers";
 
 /**
  * OpenAuth.js Discord authentication handler for Cloudflare Pages Functions
@@ -13,13 +13,15 @@ import Discord from "@openauthjs/openauth/providers/discord";
 export async function onRequest(context) {
   const { request, env } = context;
 
+  console.log("Auth handler called, path:", new URL(request.url).pathname);
+
   // Initialize the OpenAuth.js instance
   const openauth = new OpenAuth({
     // Secret used to encrypt cookies and tokens
     secret: env.AUTH_SECRET || "your-secret-key-change-in-production",
 
     // The base URL of your application
-    baseUrl: env.AUTH_URL || "https://main.astro2-5ew.pages.dev",
+    baseUrl: env.AUTH_URL || "https://astro2-5ew.pages.dev",
 
     // Pages URL structure
     pages: {
@@ -33,7 +35,7 @@ export async function onRequest(context) {
 
     // Configure providers
     providers: [
-      Discord({
+      DiscordProvider({
         clientId: env.DISCORD_CLIENT_ID || "",
         clientSecret: env.DISCORD_CLIENT_SECRET || "",
         // Optional: Specific permissions to request
@@ -41,15 +43,20 @@ export async function onRequest(context) {
       }),
     ],
 
-    // Optional: Database adapter for persisting users
-    // This would connect to Cloudflare D1 in a production setup
-    // For now, we'll use the default in-memory store
-    // adapter: D1Adapter(env.DB),
-
     // Debug mode (disable in production)
     debug: true,
   });
 
   // Let OpenAuth.js handle the request
-  return await openauth.handleRequest(request);
+  try {
+    return await openauth.handleRequest(request);
+  } catch (error) {
+    console.error("Auth handler error:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
 }

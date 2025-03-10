@@ -59,6 +59,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const fetchSession = async () => {
     try {
       setIsLoading(true);
+      setError(null);
 
       // Check if running in development environment
       const isDev =
@@ -82,6 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       // In production, attempt to call the real API
+      console.log("Fetching session from server...");
       const res = await fetch("/api/auth/session");
 
       // Check if response is OK
@@ -95,15 +97,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const data = (await res.json()) as SessionResponse;
+      console.log("Session data:", data);
 
       setIsAuthenticated(data.authenticated);
       setUser(data.session?.user || null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Auth error:", err);
+      // Show more helpful error message in production
       setError(
-        "API not available yet. This is normal during local development."
+        `Authentication service unavailable. Please try again later. ${
+          err?.message ? `(${err.message})` : ""
+        }`
       );
-      // Don't show the full error to users, just log it
     } finally {
       setIsLoading(false);
     }
@@ -130,6 +135,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     // In production, redirect to the auth endpoint
+    const callbackUrl = window.location.origin + "/api/auth/callback/discord";
+    console.log("Redirecting to auth with callback:", callbackUrl);
     window.location.href = `/api/auth/signin/${provider}`;
   };
 

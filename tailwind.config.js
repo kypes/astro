@@ -14,22 +14,6 @@ export default {
   },
   plugins: [require("daisyui")],
   daisyui: {
-    themes: [
-      {
-        dark: {
-          primary: "#f59e0b", // Amber/gold
-          secondary: "#0ea5e9", // Sky blue
-          accent: "#10b981", // Emerald
-          neutral: "#1f2937",
-          "base-100": "#1d232a",
-          "base-200": "#191e24",
-          "base-300": "#15191e",
-          info: "#3abff8",
-          success: "#36d399",
-          warning: "#fbbd23",
-          error: "#f87272",
-        },
-      },
-    ],
+    themes: ["dark"],
   },
 };

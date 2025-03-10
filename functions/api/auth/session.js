@@ -1,5 +1,5 @@
 import OpenAuth from "@openauthjs/openauth";
-import Discord from "@openauthjs/openauth/providers/discord";
+import { DiscordProvider } from "@openauthjs/openauth/providers";
 
 /**
  * API endpoint to get current user session data
@@ -12,12 +12,14 @@ import Discord from "@openauthjs/openauth/providers/discord";
 export async function onRequest(context) {
   const { request, env } = context;
 
+  console.log("Session API called:", new URL(request.url).pathname);
+
   // Initialize OpenAuth.js with the same configuration
   const openauth = new OpenAuth({
     secret: env.AUTH_SECRET || "your-secret-key-change-in-production",
-    baseUrl: env.AUTH_URL || "https://main.astro2-5ew.pages.dev",
+    baseUrl: env.AUTH_URL || "https://astro2-5ew.pages.dev",
     providers: [
-      Discord({
+      DiscordProvider({
         clientId: env.DISCORD_CLIENT_ID || "",
         clientSecret: env.DISCORD_CLIENT_SECRET || "",
         scopes: ["identify", "email"],
@@ -28,7 +30,9 @@ export async function onRequest(context) {
 
   try {
     // Get the current session
+    console.log("Trying to get session...");
     const session = await openauth.getSession(request);
+    console.log("Session result:", session ? "Found" : "Not found");
 
     // Return session data as JSON
     return new Response(
@@ -48,11 +52,13 @@ export async function onRequest(context) {
       }
     );
   } catch (error) {
+    console.error("Session error:", error);
+
     // Return error response
     return new Response(
       JSON.stringify({
         authenticated: false,
-        error: error.message,
+        error: error.message || "Failed to retrieve session",
       }),
       {
         status: 500,
