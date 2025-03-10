@@ -31,15 +31,3 @@ import LoginForm from "./LoginForm";
 		<LoginForm client:load />
 	</div>
 </div>
-
-<script>
-	// For demonstration purposes - handle form submission
-	document.addEventListener('DOMContentLoaded', () => {
-		const form = document.querySelector('form');
-		form?.addEventListener('submit', (e) => {
-			e.preventDefault();
-			// In a real app, you would handle authentication here
-			console.log('Form submitted');
-		});
-	});
-</script>

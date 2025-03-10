@@ -83,6 +83,12 @@ const LoginFormContent: React.FC = () => {
     );
   }
 
+  // Check if we're in a local development environment
+  const isDev =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+
   // If not authenticated, show Discord login button
   return (
     <div>
@@ -94,8 +100,16 @@ const LoginFormContent: React.FC = () => {
       </div>
 
       {error && (
-        <div className="alert alert-error mb-6">
+        <div className="alert alert-info mb-6">
           <span>{error}</span>
+          {isDev && (
+            <div className="mt-2 text-xs">
+              <p>
+                <strong>Development Note:</strong> Authentication APIs require
+                Cloudflare Pages deployment.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -113,6 +127,19 @@ const LoginFormContent: React.FC = () => {
             <DiscordLogo />
             Sign in with Discord
           </button>
+
+          {isDev && (
+            <div className="mt-4 text-xs text-base-content/70 bg-info/10 p-3 rounded-lg">
+              <p className="font-semibold">Development Environment Detected</p>
+              <p className="mt-1">
+                Discord authentication requires deployment to Cloudflare Pages.
+              </p>
+              <p className="mt-1">
+                In local development, clicking the button will show an alert
+                instead of redirecting to Discord.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="text-center text-sm text-base-content/70">
