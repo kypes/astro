@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "astro build && wrangler pages deploy ./dist",
+    "deploy": "astro build && cp cloudflare-worker-entry.js dist/ && wrangler pages deploy ./dist",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {

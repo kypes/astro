@@ -5,4 +5,11 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
 # Use our custom worker entry
-main = "./src/worker-entry.js" 
+main = "./cloudflare-worker-entry.js"
+
+# Additional worker configuration
+[build]
+command = "npm run build"
+
+[site]
+bucket = "./dist" 
