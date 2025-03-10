@@ -8,8 +8,20 @@
       "function": "api/auth/session"
     },
     {
-      "pattern": "/api/auth/*",
-      "function": "api/auth/[...openauth]"
+      "pattern": "/api/auth/openauth/*",
+      "function": "api/auth/openauth/_middleware"
+    },
+    {
+      "pattern": "/api/auth/signin/*",
+      "function": "api/auth/openauth/_middleware"
+    },
+    {
+      "pattern": "/api/auth/signout",
+      "function": "api/auth/openauth/_middleware"
+    },
+    {
+      "pattern": "/api/auth/callback/*",
+      "function": "api/auth/openauth/_middleware"
     }
   ]
 }
