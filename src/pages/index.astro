@@ -1,11 +1,21 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout title="Sign In | Release Management System">
-	<Welcome />
+<Layout title="Home | Release Management System">
+	<div class="hero min-h-[70vh] bg-base-200 rounded-xl">
+		<div class="hero-content text-center">
+			<div class="max-w-md">
+				<h1 class="text-5xl font-bold">Release Management System</h1>
+				<p class="py-6">Welcome to the Release Management System. This application allows you to manage and submit releases efficiently.</p>
+				<div class="flex flex-wrap gap-4 justify-center">
+					<a href="/login" class="btn btn-primary">Sign In</a>
+					<a href="/dashboard" class="btn btn-outline">Go to Dashboard</a>
+				</div>
+			</div>
+		</div>
+	</div>
 </Layout>
