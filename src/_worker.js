@@ -42,10 +42,5 @@ if (typeof Buffer === "undefined") {
   };
 }
 
-// Import the entry module from Astro
-import * as adapter from "@astrojs/cloudflare/server.js";
-import { App } from "../dist/server/entry.mjs";
-
-export default {
-  fetch: adapter.createExports(App).default.fetch,
-};
+// Import and re-export the default handler from Astro
+export { default } from "astro/dist/entries/cloudflare/worker";
