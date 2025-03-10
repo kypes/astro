@@ -15,7 +15,7 @@ export default defineConfig({
     auth(),
   ],
   output: "server", // Server output is required for Auth Astro
-  adapter: cloudflare(), // Use Cloudflare adapter for deployment
+  adapter: cloudflare(), // Use Cloudflare adapter with default settings
 
   // Add vite configuration to handle Node.js modules
   vite: {
@@ -28,13 +28,46 @@ export default defineConfig({
         "node:path": "path-browserify",
       },
     },
-    // Add our polyfill as a client entry
     build: {
-      rollupOptions: {
-        input: {
-          polyfill: "./src/polyfills.js",
+      minify: false, // Disable minification for better error messages
+    },
+    plugins: [
+      {
+        name: "inject-polyfills",
+        enforce: "pre",
+        transform(code, id) {
+          // Only apply to the worker entry file
+          if (id.includes("_worker.js") || id.includes("worker-entry.js")) {
+            return {
+              code: `
+                // Define global if it doesn't exist
+                if (typeof global === "undefined") {
+                  // @ts-ignore
+                  self.global = self;
+                }
+                
+                // Polyfill for MessageChannel
+                if (typeof MessageChannel === 'undefined') {
+                  class MessagePort {
+                    constructor() { this.onmessage = null; }
+                    postMessage() {}
+                    start() {}
+                    close() {}
+                  }
+                  self.MessageChannel = class MessageChannel {
+                    constructor() {
+                      this.port1 = new MessagePort();
+                      this.port2 = new MessagePort();
+                    }
+                  };
+                }
+                ${code}
+              `,
+              map: null,
+            };
+          }
         },
       },
-    },
+    ],
   },
 });

@@ -4,8 +4,8 @@ compatibility_date = "2023-10-30"
 compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
-# Use our custom worker entry
-main = "./cloudflare-worker-entry.js"
+# Let Astro handle its own worker entry
+# No need to specify main = "./cloudflare-worker-entry.js" anymore
 
 # Additional worker configuration
 [build]

@@ -1,46 +1,26 @@
 /**
  * Polyfills for Cloudflare Workers environment
- * These are needed for React server-side rendering in Cloudflare Workers
  */
 
-// Define global if it doesn't exist
-if (typeof global === "undefined") {
-  // @ts-ignore
-  self.global = self;
+// This file is referenced in astro.config.mjs and will be included in the build
+// It provides necessary polyfills for React server-side rendering in Cloudflare
+
+// MessageChannel polyfill for React DOM Server
+class MessagePort {
+  constructor() {
+    this.onmessage = null;
+  }
+  postMessage() {}
+  start() {}
+  close() {}
 }
 
-// MessageChannel polyfill
-if (typeof MessageChannel === "undefined") {
-  global.MessageChannel = class MessageChannel {
-    constructor() {
-      this.port1 = {
-        onmessage: null,
-        postMessage: () => {},
-        close: () => {},
-        start: () => {},
-      };
-      this.port2 = {
-        onmessage: null,
-        postMessage: () => {},
-        close: () => {},
-        start: () => {},
-      };
-    }
-  };
+class MessageChannel {
+  constructor() {
+    this.port1 = new MessagePort();
+    this.port2 = new MessagePort();
+  }
 }
 
-// Create empty process object if it doesn't exist
-if (typeof process === "undefined") {
-  global.process = { env: {}, nextTick: (fn) => setTimeout(fn, 0) };
-}
-
-// Polyfill for Buffer if it doesn't exist
-if (typeof Buffer === "undefined") {
-  global.Buffer = {
-    isBuffer: () => false,
-    from: (data) => new Uint8Array(data),
-  };
-}
-
-// Export nothing - this is just for side effects
-export {};
+// Export the polyfills for global use
+export { MessageChannel };

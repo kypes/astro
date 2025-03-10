@@ -2,6 +2,10 @@
 
 This document outlines the steps to properly deploy our Astro application with Auth Astro integration to Cloudflare Pages.
 
+## Deployment Recommendation
+
+**Due to persistent issues with the `MessageChannel` polyfill when using the Wrangler CLI for deployment, we strongly recommend using the GitHub integration method for deployment.**
+
 ## Build Configuration
 
 The build configuration in Cloudflare Pages should be set as follows:
@@ -44,11 +48,27 @@ Replace `your-site.pages.dev` with your actual Cloudflare Pages domain.
 
 ## Deployment Process
 
-The application is set up to deploy automatically when changes are pushed to the main branch on GitHub. If you need to manually deploy:
+### GitHub Integration (Recommended)
 
-1. Push changes to GitHub: `git push origin main`
-2. Cloudflare Pages will automatically detect the changes and start the build process
-3. Check the build logs in the Cloudflare dashboard for any errors
+Due to persistent issues with the Wrangler CLI and MessageChannel polyfills, we recommend using the GitHub integration method:
+
+1. Push your code to a GitHub repository
+2. In the Cloudflare dashboard, go to Workers & Pages > Create Application > Pages > Connect to Git
+3. Select your repository and configure the build settings as specified above
+4. Set up the required environment variables
+5. Click "Save and Deploy"
+
+Cloudflare Pages will automatically build and deploy your site when changes are pushed to the repository.
+
+### Direct Deployment (Not Recommended)
+
+If you still want to try direct deployment using the Wrangler CLI:
+
+```bash
+npm run deploy
+```
+
+**Note:** This method is currently experiencing issues with the `MessageChannel` polyfill and may not work reliably.
 
 ## Troubleshooting
 

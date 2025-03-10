@@ -2,14 +2,19 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import type { Session } from "@auth/core/types";
 
+// Extended Session type to include error
+interface ExtendedSession extends Session {
+  error?: string;
+}
+
 // Auth context state interface
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   user: Session["user"] | null;
   error: string | null;
-  login: (provider?: string) => void;
-  logout: () => void;
+  login: (provider?: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 // Create a context with default values
@@ -18,8 +23,8 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   user: null,
   error: null,
-  login: () => {},
-  logout: () => {},
+  login: async () => {},
+  logout: async () => {},
 });
 
 // Hook for child components to get the auth context
@@ -42,33 +47,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsLoading(true);
       setError(null);
 
-      // Check if running in development environment
-      const isDev =
-        window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1";
+      // Fetch session from Auth Astro API
+      const res = await fetch("/api/auth/session", {
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+        },
+      });
 
-      // In production or development, attempt to call the Auth Astro API
-      console.log("Fetching session from Auth Astro...");
-      const res = await fetch("/api/auth/session");
-
-      // Check if response is OK
       if (!res.ok) {
-        throw new Error(`API responded with status: ${res.status}`);
+        throw new Error(`Auth API error: ${res.status}`);
       }
 
-      const session = (await res.json()) as Session | null;
-      console.log("Session data:", session);
+      const session = (await res.json()) as ExtendedSession | null;
 
-      setIsAuthenticated(!!session);
+      if (session?.error) {
+        throw new Error(session.error);
+      }
+
+      setIsAuthenticated(!!session?.user);
       setUser(session?.user || null);
     } catch (err: any) {
       console.error("Auth error:", err);
-      // Show more helpful error message in production
       setError(
-        `Authentication service unavailable. Please try again later. ${
-          err?.message ? `(${err.message})` : ""
-        }`
+        `Authentication error: ${err?.message || "Service unavailable"}`
       );
+      setIsAuthenticated(false);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -77,31 +81,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Check authentication status when the component mounts
   useEffect(() => {
     fetchSession();
+    // Set up session polling every 5 minutes
+    const interval = setInterval(fetchSession, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Login function - redirects to Discord OAuth flow
+  // Login function - redirects to provider OAuth flow
   const login = async (provider = "discord") => {
     try {
+      setError(null);
       const { signIn } = await import("auth-astro/client");
       await signIn(provider);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Login error:", err);
-      setError("Failed to initiate login");
+      setError(`Login failed: ${err?.message || "Unknown error"}`);
     }
   };
 
   // Logout function
   const logout = async () => {
     try {
+      setError(null);
       const { signOut } = await import("auth-astro/client");
       await signOut();
-    } catch (err) {
-      setError("Failed to log out");
-      console.error(err);
+      setIsAuthenticated(false);
+      setUser(null);
+    } catch (err: any) {
+      setError(`Logout failed: ${err?.message || "Unknown error"}`);
+      console.error("Logout error:", err);
     }
   };
 
-  // Context provider
   return (
     <AuthContext.Provider
       value={{
