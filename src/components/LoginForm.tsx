@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Lock, Mail, LogIn, ArrowRight, User } from "lucide-react";
+import React from "react";
+import { LogIn } from "lucide-react";
 import { useAuth, AuthProvider } from "../hooks/useAuth";
 
 // Discord SVG logo
@@ -19,18 +19,6 @@ const DiscordLogo = () => (
 // LoginForm component content that uses the auth context
 const LoginFormContent: React.FC = () => {
   const { isAuthenticated, isLoading, user, error, login, logout } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
-
-  // Handle form submission for credential login (not currently used with Discord-only auth)
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(
-      "Direct login with credentials is not available. Please sign in with Discord."
-    );
-  };
 
   // Login with Discord
   const handleDiscordLogin = () => {
@@ -59,7 +47,9 @@ const LoginFormContent: React.FC = () => {
               <img src={user.image} alt={user.name || "User"} />
             ) : (
               <div className="bg-primary/20 flex items-center justify-center">
-                <User size={40} className="text-primary" />
+                <span className="text-3xl font-bold text-primary">
+                  {user.name?.charAt(0) || "U"}
+                </span>
               </div>
             )}
           </div>
@@ -93,111 +83,49 @@ const LoginFormContent: React.FC = () => {
     );
   }
 
-  // If not authenticated, show login form
+  // If not authenticated, show Discord login button
   return (
     <div>
       <div className="mb-8 text-center lg:text-left">
         <h2 className="text-3xl font-bold">Sign In</h2>
         <p className="mt-2 text-base-content/70">
-          Enter your credentials to access your account
+          Use your Discord account to access Kingdom Leaks
         </p>
       </div>
 
-      {(error || formError) && (
+      {error && (
         <div className="alert alert-error mb-6">
-          <span>{error || formError}</span>
+          <span>{error}</span>
         </div>
       )}
 
-      {/* Direct credential login form - disabled but kept for UI consistency */}
-      <form onSubmit={handleSubmit} className="space-y-6 mb-6">
-        {/* Email field */}
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text font-medium">Email</span>
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50">
-              <Mail size={18} />
-            </span>
-            <input
-              type="email"
-              className="input input-bordered w-full pl-10"
-              placeholder="name@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled
-            />
-          </div>
-        </div>
-
-        {/* Password field */}
-        <div className="form-control">
-          <label className="label">
-            <span className="label-text font-medium">Password</span>
-            <a href="#" className="label-text-alt link link-hover text-primary">
-              Forgot password?
-            </a>
-          </label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50">
-              <Lock size={18} />
-            </span>
-            <input
-              type="password"
-              className="input input-bordered w-full pl-10"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled
-            />
-          </div>
-        </div>
-
-        {/* Remember me checkbox */}
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            className="checkbox checkbox-primary checkbox-sm mr-2"
-            id="remember"
-            checked={rememberMe}
-            onChange={(e) => setRememberMe(e.target.checked)}
-            disabled
-          />
-          <label htmlFor="remember" className="text-sm cursor-pointer">
-            Remember me
-          </label>
-        </div>
-
-        {/* Submit button - disabled */}
-        <button
-          type="submit"
-          className="btn btn-primary w-full opacity-50 cursor-not-allowed"
-          disabled
-        >
-          Sign In
-          <ArrowRight size={18} />
-        </button>
-      </form>
-
-      {/* Social login divider */}
-      <div className="divider text-xs text-base-content/50">SIGN IN WITH</div>
-
       {/* Discord login button */}
-      <button
-        onClick={handleDiscordLogin}
-        className="btn btn-primary w-full gap-2"
-      >
-        <DiscordLogo />
-        Discord
-      </button>
+      <div className="flex flex-col items-center justify-center space-y-6">
+        <div className="bg-base-100 p-6 rounded-xl text-center w-full mb-4">
+          <p className="mb-4">
+            Click the button below to sign in with your Discord account
+          </p>
 
-      {/* Help text */}
-      <div className="mt-6 text-center text-sm text-base-content/70">
-        <p>This application uses Discord for authentication.</p>
-        <p className="mt-1">
-          You'll be redirected to Discord to authorize access.
-        </p>
+          <button
+            onClick={handleDiscordLogin}
+            className="btn btn-primary btn-lg gap-2 w-full"
+          >
+            <DiscordLogo />
+            Sign in with Discord
+          </button>
+        </div>
+
+        <div className="text-center text-sm text-base-content/70">
+          <p>Don't have a Discord account?</p>
+          <a
+            href="https://discord.com/register"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="link link-primary"
+          >
+            Create one here
+          </a>
+        </div>
       </div>
     </div>
   );
