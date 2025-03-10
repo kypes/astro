@@ -1,4 +1,6 @@
 import { issuer } from "@openauthjs/openauth";
+import { createSubjects } from "@openauthjs/openauth/subject";
+import { MemoryStorage } from "@openauthjs/openauth/storage/memory";
 
 /**
  * API endpoint to get current user session data
@@ -13,19 +15,40 @@ export async function onRequest(context) {
 
   console.log("Session API called:", new URL(request.url).pathname);
 
+  // Define subjects (user data shape) - must match the one in _middleware.js
+  const subjects = createSubjects({
+    user: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        name: { type: "string", optional: true },
+        email: { type: "string", optional: true },
+        image: { type: "string", optional: true },
+      },
+    },
+  });
+
   // Initialize OpenAuth.js with the same configuration
   const openauth = issuer({
     secret: env.AUTH_SECRET || "your-secret-key-change-in-production",
     baseUrl: env.AUTH_URL || "https://astro2-5ew.pages.dev",
-    providers: [
-      {
+
+    // Storage adapter (using memory for now, will implement D1 later)
+    storage: MemoryStorage(),
+
+    // Subjects definition
+    subjects,
+
+    // Configure providers as an object, not an array
+    providers: {
+      discord: {
         id: "discord",
         name: "Discord",
         type: "oauth",
         clientId: env.DISCORD_CLIENT_ID || "",
         clientSecret: env.DISCORD_CLIENT_SECRET || "",
       },
-    ],
+    },
     debug: true,
   });
 
