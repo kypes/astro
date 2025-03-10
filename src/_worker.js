@@ -1,3 +1,6 @@
+// Import polyfills first
+import "./module-polyfill.js";
+
 // Define global if it doesn't exist
 if (typeof global === "undefined") {
   // @ts-ignore
@@ -39,6 +42,38 @@ if (typeof Buffer === "undefined") {
   global.Buffer = {
     isBuffer: () => false,
     from: (data) => new Uint8Array(data),
+  };
+}
+
+// Polyfill for Node.js module system
+if (typeof module === "undefined") {
+  global.module = {
+    exports: {},
+  };
+}
+
+if (typeof require === "undefined") {
+  global.require = function (moduleName) {
+    console.warn(`[Worker] Attempted to require: ${moduleName}`);
+
+    // Handle specific modules that might be required
+    if (moduleName === "path") {
+      // Return a simplified path module with common functions
+      return {
+        resolve: (...parts) => parts.join("/").replace(/\/+/g, "/"),
+        join: (...parts) => parts.join("/").replace(/\/+/g, "/"),
+        dirname: (path) => path.split("/").slice(0, -1).join("/") || ".",
+        basename: (path) => path.split("/").pop(),
+        extname: (path) => {
+          const base = path.split("/").pop() || "";
+          const idx = base.lastIndexOf(".");
+          return idx > 0 ? base.slice(idx) : "";
+        },
+      };
+    }
+
+    // Return an empty object for other modules
+    return {};
   };
 }
 

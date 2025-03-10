@@ -28,6 +28,12 @@ export default defineConfig({
         "node:path": "path-browserify",
       },
     },
+    define: {
+      // Define global variables for the browser environment
+      "process.env.BROWSER": "true",
+      "process.version": '"v16.0.0"',
+      "global.module": "{}",
+    },
     build: {
       minify: false, // Disable minification for better error messages
     },
@@ -59,6 +65,17 @@ export default defineConfig({
                       this.port1 = new MessagePort();
                       this.port2 = new MessagePort();
                     }
+                  };
+                }
+
+                // Polyfill for module
+                if (typeof module === 'undefined') {
+                  self.module = { exports: {} };
+                }
+                if (typeof require === 'undefined') {
+                  self.require = function(mod) { 
+                    console.warn('Require called but not available:', mod);
+                    return {}; 
                   };
                 }
                 ${code}
